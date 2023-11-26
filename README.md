@@ -3,8 +3,8 @@ Robotic assistant, which make your laptop more realistic with eyes to control HA
 
 ### **Abstract plan:**
 
-![img.png](img.png)
-![img_1.png](img_1.png)
+![img.png](readme_images/img.png)
+![img_1.png](readme_images/img_1.png)
 As you can see, i devided project into 4 pieces.(Разделяй и властвуй)
 
 ## Resources:

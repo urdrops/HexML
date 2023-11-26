@@ -50,8 +50,8 @@ def tts_func(client: OpenAI, text: str):
         voice="onyx",
         input=text,
     )
-    response.stream_to_file("output.mp3")
-    playsound.playsound(sound="output.mp3", block=True)
+    response.stream_to_file("./audio/output.mp3")
+    playsound.playsound(sound="./audio/output.mp3", block=True)
 
 
 def main():
@@ -95,7 +95,7 @@ def main():
     )
     print(run, "\n")
 
-    #input_text: str = stt_func(client, audio_file_path="input.mp3")
+    #input_text: str = stt_func(client, audio_file_path="./audio/input.mp3")
     #output_text: str = conversation_func(client, input_text)
     #tts_func(client, output_text)
 
