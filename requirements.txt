@@ -1,1 +1,7 @@
-numpy==1.26.2
+numpy
+openai
+python-dotenv
+sounddevice
+soundfile
+playsound
+pyttsx3

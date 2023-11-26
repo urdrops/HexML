@@ -14,3 +14,5 @@ As you can see, i devided project into 4 pieces.(Разделяй и власт�
 * https://arduino.ru/forum/programmirovanie/led-matrix-p10-shrifty (led matrix)
 * https://youtu.be/JMgXu1rFDJ0?si=i_ejf0mvJhyc3T6j (understand which gear is the best one)
 * https://youtu.be/5yPeKQzCPdI?si=iKUTBOYfgqEPdI7j (face recognition)
+* https://github.com/Uberi/speech_recognition/blob/master/examples/microphone_recognition.py (speech recognition)
+* https://platform.openai.com/docs/api-reference/introduction (openai docs)
