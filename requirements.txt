@@ -6,3 +6,6 @@ soundfile
 playsound
 pyttsx3
 serial
+pyserial
+opencv-python
+face_recognition
