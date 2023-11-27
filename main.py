@@ -53,7 +53,6 @@ def tts_func(client: OpenAI, text: str):
     response.stream_to_file("./audio/output.mp3")
     playsound.playsound(sound="./audio/output.mp3", block=True)
 
-
 def main():
     load_dotenv()
     Openai_Token = os.getenv("OPENAI_TOKEN", "value doesnt exist")

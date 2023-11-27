@@ -1,40 +1,4 @@
-/*--------------------------------------------------------------------------------------
 
- dmd_test.cpp 
-   Demo and example project for the Freetronics DMD, a 512 LED matrix display
-   panel arranged in a 32 x 16 layout.
-
- Copyright (C) 2011 Marc Alexander (info <at> freetronics <dot> com)
-
- See http://www.freetronics.com/dmd for resources and a getting started guide.
-
- Note that the DMD library uses the SPI port for the fastest, low overhead writing to the
- display. Keep an eye on conflicts if there are any other devices running from the same
- SPI port, and that the chip select on those devices is correctly set to be inactive
- when the DMD is being written to.
-
- USAGE NOTES
- -----------
-
- - Place the DMD library folder into the "arduino/libraries/" folder of your Arduino installation.
- - Get the TimerOne library from here: http://code.google.com/p/arduino-timerone/downloads/list
-   or download the local copy from the DMD library page (which may be older but was used for this creation)
-   and place the TimerOne library folder into the "arduino/libraries/" folder of your Arduino installation.
- - Restart the IDE.
- - In the Arduino IDE, you can open File > Examples > DMD > dmd_demo, or dmd_clock_readout, and get it
-   running straight away!
-
- * The DMD comes with a pre-made data cable and DMDCON connector board so you can plug-and-play straight
-   into any regular size Arduino Board (Uno, Freetronics Eleven, EtherTen, USBDroid, etc)
-  
- * Please note that the Mega boards have SPI on different pins, so this library does not currently support
-   the DMDCON connector board for direct connection to Mega's, please jumper the DMDCON pins to the
-   matching SPI pins on the other header on the Mega boards.
-
- This example code is in the public domain.
- The DMD library is open source (GPL), for more see DMD.cpp and DMD.h
-
---------------------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------------------
   Includes
@@ -67,6 +31,7 @@ void setup(void)
 {
 
    //initialize TimerOne's interrupt/CPU usage used to scan and refresh the display
+   Serial.begin(9600);
    Timer1.initialize( 1000 );           //period in microseconds to call ScanDMD. Anything longer than 5000 (5ms) and you can see flicker.
    Timer1.attachInterrupt( ScanDMD );   //attach the Timer1 interrupt to ScanDMD which goes to dmd.scanDisplayBySPI()
 
@@ -80,19 +45,17 @@ void setup(void)
   Arduino architecture main loop
 --------------------------------------------------------------------------------------*/
 void loop(void)
-{  
+{
    byte b;
    if (Serial.available() > 0) { // Check if data is available to read
     String receivedString = Serial.readStringUntil('\n'); // Read the incoming string until newline character '\n'
-    int stringLength = receivedString.length(); 
+    int stringLength = receivedString.length();
     char str[20];
     receivedString.toCharArray(str, 20);
     // Print the received string to the serial monitor
-    Serial.print("Received: ");
-    Serial.println(receivedString);
 
     // You can add your logic here based on the received string
-    
+
     // 10 x 14 font clock, including demo of OR and NOR modes for pixels so that the flashing colon can be overlayed
     dmd.clearScreen( true );
     dmd.selectFont(Arial_Black_16);
@@ -108,7 +71,6 @@ void loop(void)
       }
     }
    } else {
-    // default code
    }
    delay( 200 );      
    
