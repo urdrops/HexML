@@ -19,7 +19,7 @@ DMD dmd(DISPLAYS_ACROSS, DISPLAYS_DOWN);
   called at the period set in Timer1.initialize();
 --------------------------------------------------------------------------------------*/
 void ScanDMD()
-{ 
+{
   dmd.scanDisplayBySPI();
 }
 
@@ -50,8 +50,8 @@ void loop(void)
    if (Serial.available() > 0) { // Check if data is available to read
     String receivedString = Serial.readStringUntil('\n'); // Read the incoming string until newline character '\n'
     int stringLength = receivedString.length();
-    char str[20];
-    receivedString.toCharArray(str, 20);
+    char str[60];
+    receivedString.toCharArray(str, 60);
     // Print the received string to the serial monitor
 
     // You can add your logic here based on the received string
@@ -71,6 +71,22 @@ void loop(void)
       }
     }
    } else {
+    dmd.clearScreen( true );
+    dmd.selectFont(Arial_Black_16);
+
+    dmd.drawMarquee("Welcome to Lab",14,(32*DISPLAYS_ACROSS)-1,8);
+    long start=millis();
+    long timer=start;
+    boolean ret=false;
+    while(!ret){
+      if (Serial.available() > 0) {
+        break;
+      }
+      if ((timer) < millis()) {
+        ret=dmd.stepMarquee(-1,0);
+        timer=millis();
+      }
+    }
    }
    delay( 200 );      
    

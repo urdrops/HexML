@@ -9,3 +9,4 @@ serial
 pyserial
 opencv-python
 face_recognition
+asyncio
