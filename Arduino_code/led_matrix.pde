@@ -1,5 +1,4 @@
 
-
 /*--------------------------------------------------------------------------------------
   Includes
 --------------------------------------------------------------------------------------*/
@@ -50,8 +49,8 @@ void loop(void)
    if (Serial.available() > 0) { // Check if data is available to read
     String receivedString = Serial.readStringUntil('\n'); // Read the incoming string until newline character '\n'
     int stringLength = receivedString.length();
-    char str[60];
-    receivedString.toCharArray(str, 60);
+    char str[100];
+    receivedString.toCharArray(str, 100);
     // Print the received string to the serial monitor
 
     // You can add your logic here based on the received string
@@ -74,7 +73,7 @@ void loop(void)
     dmd.clearScreen( true );
     dmd.selectFont(Arial_Black_16);
 
-    dmd.drawMarquee("Welcome to Lab",14,(32*DISPLAYS_ACROSS)-1,8);
+    dmd.drawMarquee("AMITY INNOVATION DESIGN AND RESEARCH CENTRE",43,(32*DISPLAYS_ACROSS)-1,9);
     long start=millis();
     long timer=start;
     boolean ret=false;

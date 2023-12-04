@@ -5,9 +5,11 @@ from playsound import playsound
 from simple_facerec import SimpleFacerec
 import asyncio
 
+queue_faces = []
+
 
 async def send_serial(ser, name):
-    data_to_send = f"AMIITY University Tashkent welcomes respected {name}\n"
+    data_to_send = f"AUT welcomes you {name}\n"
     ser.write(data_to_send.encode())
 
 
@@ -22,11 +24,11 @@ async def main():
     # Load Camera
     cap = cv2.VideoCapture(2)
     # serial to send result to arduino
-    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+  #  ser_eye = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
     # time to connect
     time.sleep(2)
     prev_name = ''
-    queue_faces = []
 
     # loop
     while True:
@@ -37,6 +39,7 @@ async def main():
             y1, x1, y2, x2 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
             cv2.putText(frame, name, (x1, y1), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 100, 0), 4)
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 100, 0), 4)
+           # print("x:", face_loc[0], "y:", face_loc[1], face_loc[2], face_loc[3] )
             # to check is None or not
             name_to_display = name if name != "" else prev_name
             if name_to_display != prev_name and name_to_display not in queue_faces:
@@ -54,6 +57,7 @@ async def main():
             queue_faces.clear()
             print("After:", queue_faces)
     ser.close()
+   # ser_eye.close()
     cap.release()
     cv2.destroyAllWindows()
 
