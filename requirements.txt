@@ -10,9 +10,8 @@ pyserial
 opencv-python
 face_recognition
 asyncio
-whisper
 mediapipe
 pyaudio
 pvrecorder
-pydub
 pygame
+pvporcupine

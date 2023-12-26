@@ -7,7 +7,7 @@ import soundfile as sf
 
 load_dotenv()
 Openai_Token = os.getenv("OPENAI_TOKEN", "value doesnt exist")
-client = OpenAI(api_key=Openai_Token)
+client = OpenAI()
 
 "output.mp3"
 

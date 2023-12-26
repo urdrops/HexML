@@ -68,7 +68,7 @@ control_soft_name = {
         "properties": {
             "app_name": {
                 "type": "string",
-                "description": "Youtube, Instagram, Telegram, Google etc.",
+                "description": "name of application or web site. Example: instagram, youtube, calendar",
             },
             # "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
         },
@@ -83,10 +83,12 @@ def control_soft(app_name: str):
     match app:
         case "youtube":
             os.system(
-                "google-chrome https://www.youtube.com/watch?v=sDQqPPX8kWo&list=RDsDQqPPX8kWo&start_radio=1"
-                "&ab_channel=mehro")
+                "google-chrome https://youtu.be/VR5oxQ32NGY?si=a2Qc7XaXstumuqNm")
             return True
         case "instagram":
             os.system("google-chrome https://www.instagram.com/")
+            return True
+        case "calendar":
+            os.system("google-chrome https://timetreeapp.com/calendars")
             return True
     return "not done("
