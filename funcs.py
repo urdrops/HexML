@@ -1,26 +1,7 @@
 import os
 import serial
 import time
-import asyncio
 
-# ==============================================================================
-# Get the current weather
-# ==============================================================================
-get_weather_name = {
-    "name": "get_current_weather",
-    "description": "Get the current weather in a given location",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "location": {
-                "type": "string",
-                "description": "The city and state, e.g. San Francisco, CA",
-            },
-            "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
-        },
-        "required": ["location"],
-    },
-}
 
 # ==============================================================================
 # Light control
@@ -83,7 +64,7 @@ def control_soft(app_name: str):
     match app:
         case "youtube":
             os.system(
-                "google-chrome https://youtu.be/VR5oxQ32NGY?si=a2Qc7XaXstumuqNm")
+                "google-chrome https://youtu.be/")
             return True
         case "instagram":
             os.system("google-chrome https://www.instagram.com/")

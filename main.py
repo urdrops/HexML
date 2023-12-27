@@ -1,16 +1,14 @@
 import os
+import pygame
 import random
 import time
-
-import pygame
-import asyncio
-from playsound import playsound
-import speech_recognition as sr
-from openai import OpenAI
-from dotenv import load_dotenv
-from funcs import get_weather_name, light_control_name, control_soft_name, control_soft, light_control
 import pvporcupine
+import speech_recognition as sr
+from dotenv import load_dotenv
+from openai import OpenAI
+from playsound import playsound
 from pvrecorder import PvRecorder
+import funcs as f
 
 # ==============================================================================
 # load token and set up client Openai API
@@ -30,34 +28,48 @@ porcupine = pvporcupine.create(
     access_key=Pvporcopine_Token, keyword_paths=['ww.ppn'])
 recoder = PvRecorder(device_index=-1, frame_length=porcupine.frame_length)
 
+# colors logging
+ANSI_RESET = "\u001B[0m"
+ANSI_BLACK = "\u001B[30m"
+ANSI_RED = "\u001B[31m"
+ANSI_GREEN = "\u001B[32m"
+ANSI_YELLOW = "\u001B[33m"
+ANSI_BLUE = "\u001B[34m"
+ANSI_PURPLE = "\u001B[35m"
+ANSI_CYAN = "\u001B[36m"
+ANSI_WHITE = "\u001B[37m"
+
 
 # ==============================================================================
 # Voice to text.
 # ==============================================================================
-async def stt_func():
-    recognizer = sr.Recognizer()
+def stt_func():
     try:
+        recognizer = sr.Recognizer()
         with sr.Microphone() as source:
-            print("\033[92mPlease, feel free to speak your mind...\033[0m")
-            audio = recognizer.listen(source, timeout=3)
+            print(ANSI_GREEN + "Please, feel free to speak your mind..." + ANSI_RESET)
+            audio = recognizer.listen(source, timeout=4)
         print("Saving data as .wav file...")
         tstart = time.time()
         pygame.mixer.music.play()
+
         # Convert the audio to wav format
         with open("./audio/input.wav", "wb") as wav_file:
             wav_file.write(audio.get_wav_data())
         print("Speech recognition in progress...")
+
         transcript = client.audio.transcriptions.create(
             model="whisper-1",
             file=open("./audio/input.wav", "rb")
         )
-        text = transcript.text
-        print(f"\033[94mYou said: \033[0m{text}")
-        print("STT model time:", time.time() - tstart)
-        return text
 
-    except sr.exceptions.UnknownValueError:
-        print("Speech not recognized.")
+        print(ANSI_BLUE + "You said:" + ANSI_RESET, transcript.text)
+        print(ANSI_CYAN + "STT model time:", ANSI_RED, time.time() - tstart, ANSI_RESET)
+
+        return transcript.text
+
+    except sr.exceptions.UnknownValueError as un:
+        print(f"Speech not recognized. Error: {un}")
         return ""
     except sr.exceptions.RequestError as e:
         print(f"Error while querying the recognition service: {e}")
@@ -70,7 +82,7 @@ async def stt_func():
 # ==============================================================================
 # Chatting with the HexML assistant.
 # ==============================================================================
-async def conversation_loop(HexML, conversation, input_text):
+def conversation_loop(HexML, conversation, input_text):
     # Represents a message within a thread.
     message = client.beta.threads.messages.create(
         thread_id=conversation.id,
@@ -89,9 +101,10 @@ async def conversation_loop(HexML, conversation, input_text):
     i = 0
     while run.status not in ["completed", "requires_action", "failed"]:
         if i > 0:
-            await asyncio.sleep(0.5)
+            time.sleep(0.5)
         i += 1
         run = client.beta.threads.runs.retrieve(thread_id=conversation.id, run_id=run.id)
+
     if run.status == "requires_action":
         tools_to_call = run.required_action.submit_tool_outputs.tool_calls
         tool_outputs = []
@@ -108,12 +121,10 @@ async def conversation_loop(HexML, conversation, input_text):
             # =========================================================
             dict_func_args = eval(func_args)  # str to dict
             match func_name:
-                case "get_current_weather":
-                    output = "Tashkent 9 degree"
                 case "light_control":
-                    output = light_control(dict_func_args["light_mode"])
+                    output = f.light_control(dict_func_args["light_mode"])
                 case "control_soft":
-                    output = control_soft(dict_func_args["app_name"])
+                    output = f.control_soft(dict_func_args["app_name"])
 
             # =========================================================
             tool_outputs.append({"tool_call_id": tool_call_id, "output": output})
@@ -131,34 +142,38 @@ async def conversation_loop(HexML, conversation, input_text):
     i = 0
     while run.status not in ["completed", "requires_action", "failed"]:
         if i > 0:
-            await asyncio.sleep(0.5)
+            time.sleep(0.5)
         i += 1
         run = client.beta.threads.runs.retrieve(thread_id=conversation.id, run_id=run.id)
-    # print(run)
 
+    # ===========================================================================
     messages = client.beta.threads.messages.list(thread_id=conversation.id)
-    new_message = messages.data[0].content[0].text.value
-    print("\033[94mHexML: \033[0m", new_message)
-    print("ChatGPT model time:", time.time() - tstart)
+    extracted_message = messages.data[0].content[0].text.value
 
-    return new_message
+    print(ANSI_CYAN + "ChatGPT model time:", ANSI_RED, time.time() - tstart, ANSI_RESET)
+    print(ANSI_BLUE + "HexML: " + ANSI_RESET, extracted_message)
+
+    return extracted_message
 
 
 # ==============================================================================
 # Text to Speech.
 # ==============================================================================
-async def tts_func(output_text):
+def tts_func(output_text):
     tstart = time.time()
     speech_file_path = "./audio/output.mp3"
     response = client.audio.speech.create(
         model="tts-1",
         voice="onyx",
-        input=output_text, speed=1.1
+        input=output_text,
+        speed=1.1,
     )
 
     response.stream_to_file(speech_file_path)
+
     pygame.mixer.music.stop()
-    print("TTS model time:", time.time() - tstart)
+
+    print(ANSI_CYAN + "TTS model time:", ANSI_RED, time.time() - tstart, ANSI_RESET)
     playsound("./audio/output.mp3")
 
 
@@ -166,31 +181,27 @@ async def tts_func(output_text):
 # Main async function
 # ==============================================================================
 
-async def main():
+def main():
     # Build assistants that can call models and use tools to perform tasks.
     HexML = client.beta.assistants.retrieve("asst_zCn8mg381R9TCJaxSOAKQxMK")
 
     # Modify assistant and Tools.
-    client.beta.assistants.update(
-        assistant_id="asst_zCn8mg381R9TCJaxSOAKQxMK",
-        tools=[
-            {
-                "type": "function",
-                "function": get_weather_name,
-            },
-            {
-                "type": "function",
-                "function": light_control_name,
-            },
-            {
-                "type": "function",
-                "function": control_soft_name,
-            }
 
-        ]
-    )
+    # client.beta.assistants.update(
+    #     assistant_id="asst_zCn8mg381R9TCJaxSOAKQxMK",
+    #     tools=[
+    #         {
+    #             "type": "function",
+    #             "function": f.light_control_name,
+    #         },
+    #         {
+    #             "type": "function",
+    #             "function": f.control_soft_name,
+    #         },
+    #     ]
+    # )
 
-    # create a thread
+    # Create a thread
     make_smalltalk = client.beta.threads.create()
     conversation = client.beta.threads.retrieve(make_smalltalk.id)
     try:
@@ -198,15 +209,15 @@ async def main():
         while True:
             keyword_index = porcupine.process(recoder.read())
             if keyword_index >= 0:
-                print("detected HexML")
+                print(ANSI_YELLOW + "detected wake word HexML" + ANSI_RESET)
                 playsound(f"./audio/wakewords_{random.randint(a=0, b=4)}.mp3")
                 while True:
-                    input_text = await stt_func()
+                    input_text = stt_func()
                     if input_text == "":
-                        print("sleep mode")
+                        print(ANSI_PURPLE + "sleep mode" + ANSI_RESET)
                         break
-                    output_text = await conversation_loop(HexML, conversation, input_text)
-                    await tts_func(output_text)
+                    output_text = conversation_loop(HexML, conversation, input_text)
+                    tts_func(output_text)
     except KeyboardInterrupt:
         recoder.stop()
         print("Recoder has been stopped.")
@@ -222,4 +233,4 @@ async def main():
 # ==============================================================================
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
